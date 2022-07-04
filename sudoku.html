@@ -1,0 +1,559 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Sudoku</title>
+  <style>
+    h1 {text-align: center;}
+    table {margin:auto; border-collapse:collapse;}
+    td {
+      height:30px;
+      width:30px;
+      border:1px solid;
+      text-align:center;
+      vertical-align:middle;
+    }
+    td:first-child() {border-left:solid;}
+    td:nth-child(3n) {border-right:solid;}
+    tr:first-child() {border-top:solid;}
+    tr:nth-child(3n) td {border-bottom:solid;}
+
+    #top{
+
+      border-top: solid;
+    }
+    .left{
+      border-left:solid;
+    }
+    #tableau{
+      width: 100%;
+     display: flex;
+    justify-content:center;
+    align-items: center;
+    }
+
+    
+    #btngenere
+    {
+      margin-top: 20px;
+      margin-bottom: 50px;
+      margin-left: 50px;
+      background-color: cyan;
+    }
+    #choix{
+
+      display: flex;
+     align-items:center;
+     justify-content:center;
+     flex-direction: column;
+    }
+        
+    button{
+      margin-left: 2px;
+      margin-right: 2px;
+      margin-bottom: 25px;
+    }
+    #chrono{
+
+      display: flex;
+     align-items:center;
+     justify-content:center;
+     flex-direction: column;
+    
+    }
+        
+    .timer {
+	text-align: center;
+	font-size: 40px;
+	line-height: 80px;
+	border: 2px solid #000;
+	height: 80px;
+	width: 120px;
+	margin-bottom: 20px;
+  }
+  #chiffres
+  {
+    height: 50px;
+     display: flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .chiffre-selected {
+    background-color: greenyellow;
+    color: red;
+}
+
+
+
+  </style>
+</head>
+<body>
+  <h1>Sudoku</h1>
+    <div id="choix">
+      <div>
+        <b>Choisir le niveau</b> <select id='level'>
+          <option value='1'selected>Faible</option>
+          <option value='2'>Moyen</option>
+          <option value='3'>Difficile</option>
+          </div>
+          <br>
+    <div>
+  <input id="btngenere" type="button" value="Générer la grille" onclick="genere()">
+   </div>
+  </div>
+  <div id="tableau">
+<table id="Board">
+  <tr id = "top"><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div> 
+<br>
+<!--Boutons de chiffres---->
+<div id="chiffres">
+<button>1</button>
+<button>2</button>
+<button>3</button>
+<button>4</button>
+<button>5</button>
+<button>6</button>
+<button>7</button>
+<button>8</button>
+<button>9</button>
+<button id="efface">Effacer</button>
+<button id="ajout">Ajouter</button>
+</div>
+
+   <!-- Chronomètre -->
+   <div id="chrono">
+    <div class="timer" id="counter">0</div> 
+    <br>
+    <div>
+     <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="reset">Reset</button>
+    </div>
+    </div>
+    
+<script>
+  
+ let grille= 
+[[0,0,0,0,4,6,9,0,3],
+[4,6,0,7,0,0,5,1,0],
+[9,7,0,1,0,0,0,0,4],
+[6,0,4,3,0,0,1,0,0],
+[5,0,0,0,0,0,0,0,8],
+[0,0,1,0,0,8,3,0,7],
+[1,0,0,0,0,4,0,8,9],
+[0,2,8,0,0,7,0,5,1],
+[7,0,9,8,1,0,0,0,0]];
+
+let CaseSelect;
+
+window.onload = function(){
+  let btnajout=document.getElementById("ajout");
+  btnajout.addEventListener('click', placerchiffre);
+  btnajout.onclick = function(){
+    this.style.color="blue";
+    this.style.background ="yellow";
+  }
+  let btnefface=document.getElementById("efface");  
+  btnefface.addEventListener('click', effacerchiffre);
+  btnefface.onclick= function(){
+    this.style.color = "red";
+    this.style.background= "yellow";
+  }
+
+  let ListCase = document.getElementsByTagName('td');
+  
+  for (let index = 0; index < ListCase.length; index++){
+        ListCase[index].addEventListener('click', (event)=>{
+            //console.log(ListCase[index]);
+            CaseSelect = ListCase[index];
+            
+          });
+
+  }
+}
+
+
+  
+    function affiche(tab) {
+      let X=document.getElementsByTagName('td');
+      let Y=document.querySelectorAll('tr');
+      let inc = 0;
+
+      for (let x = 0; x < 9; x++) {
+        let t = " ";
+
+        for (let y = 0; y < 9; y++) {
+          t=tab[x][y];
+          if (t!=0 && !X[inc].classList.contains("ouvert")){
+            X[inc].classList.add("fermer");
+            X[inc].style.background = 'lawngreen';   
+          }
+          else if (t == 0 && !X[inc].classList.contains("fermer")){
+            t = " ";
+            X[inc].classList.add("ouvert");
+          }       
+          X[inc].innerHTML= t; 
+              
+          inc++;    
+        }
+
+      }
+    }
+    let Diff = document.getElementById("level").value;
+      let Grid;
+    
+    function genere() {
+      
+      for(x=0; x<9; x++){
+        for (y=0; y<9; y++){
+
+          var cell = document.getElementById('Board').rows[x].cells[y];
+          cell.innerText = " ";
+          cell.style.background = 'white';
+          if (cell.classList.contains("ouvert")){
+            cell.classList.remove("ouvert");
+            
+          }
+          else{
+            cell.classList.remove("fermer");
+          }
+        }
+      }
+     //Niveaux
+      if (Diff == 1) { //facile
+
+        nbe = Math.floor(Math.random() * 2);
+        Grid = niv[Diff-1][nbe];
+      }
+      else if (Diff == 2) { // moyen
+        nbe = Math.floor(Math.random() * 3);
+        Grid = niv[Diff-1][nbe];
+      }
+      else if (Diff == 3) { // difficile
+        nbe = Math.floor(Math.random() * 5);
+        Grid = niv[Diff-1][nbe];
+      }
+ 
+    function rotation(tab, n) {
+      if (n == 0) return tab;
+      let tmp = new Array(9);
+      for (let i = 0; i < 9; i++)
+        tmp[i] = new Array(9);
+
+      for (let x = 0; x < 9; x++) {
+        for (let y = 0; y < 9; y++) {
+          tmp[y][8 - x] = tab[x][y];
+        }
+      }
+      return (rotation(tmp, n - 1));
+    }
+
+    
+    function invertGLig(tab, a, b) {
+      //tab : grille de sudoku
+      //a : numero grande ligne 1
+      //b : numero grande ligne 2
+      // grande ligne = 0, 1, 2
+      if (a != b) {
+        for (let i = 0; i < 9; i++)
+          for (let j = 0; j < 3; j++) {
+            //t : variable tampon
+            let t = tab[i][j + a * 3];
+            tab[i][j + a * 3] = tab[i][j + b * 3];
+            tab[i][j + b * 3] = t;
+          }
+      }
+    }
+
+    function invertPLig(tab, gl, pl1, pl2) {
+      // tab : grille
+      // pl1 : num de petite ligne 1
+      // pl2 : num de petite ligne 2
+      // gl : num de grande ligne contenant les deux petites lignes à inverser
+      if (pl1 != pl2) {
+        for (let col = 0; col < 9; col++) {
+          // tmp : tampon
+          let tmp = tab[col][pl1 + gl * 3];
+          tab[col][pl1 + gl * 3] = tab[col][pl2 + gl * 3];
+          tab[col][pl2 + gl * 3] = tmp;
+        }
+      }
+    }
+
+    //affiche(Grid);
+    
+    let r = Math.floor(Math.random() * 4);
+    //console.log(r);
+    Grid = rotation(Grid, r);
+    //affiche(Grid);
+    
+    for (let i = 1; i <= 9; i++) {
+      let rl = Math.floor(Math.random() * 3);
+      let r1 = Math.floor(Math.random() * 3);
+      let r2 = Math.floor(Math.random() * 3);
+      invertPLig(Grid, rl, r1, r2);
+    }
+    //affiche(Grid);
+
+    for (let i = 1; i <= 3; i++) {
+      let r1 = Math.floor(Math.random() * 3);
+      let r2 = Math.floor(Math.random() * 3);
+      invertGLig(Grid, r1, r2);
+    }
+
+    //affiche(Grid);
+
+
+    
+   function invertGCol(tab, a, b) {
+     
+      if (b != a) {
+        for (let i = 0; i < 3; i++)
+          for (let j = 0; j < 9; j++) {
+            //t : variable tampon
+            let t = tab[i+ a * 3][j];
+            tab[i + a * 3][j] = tab[i+ b * 3][j];
+            tab[i+b * 3][j] = t;
+          }
+      }
+    }
+  
+    for (let i = 1; i <= 3; i++) {
+      let a = Math.floor(Math.random() * 3);
+      let b = Math.floor(Math.random() * 3);
+      invertGCol(Grid, a, b);
+    }
+
+    //affiche(Grid);
+  
+    function invertPCol(tab, gc, pc1, pc2) {
+    
+    if (pc2 != pc1) {
+      for (let l = 0; l < 9; l++) {
+       
+        let tmp = tab[pc1 + gc * 3][l];
+        tab[pc1 + gc * 3][l] = tab[pc2 + gc * 3][l];
+        tab[pc2 +gc * 3][l] = tmp;
+      }
+    }
+  }
+ 
+
+  for (let i = 1; i <= 9; i++) {
+    let rc = Math.floor(Math.random() * 3);
+    let pc1 = Math.floor(Math.random() * 3);
+    let pc2 = Math.floor(Math.random() * 3);
+    invertPLig(Grid, rc, pc1, pc2);
+  }
+
+affiche(Grid);
+
+}
+
+
+//Chronomètre
+//Start
+let counterElement = document.querySelector('#counter');
+let counter = 0;
+let timerid;
+const btnStart = document.querySelector('#start');
+
+btnStart.onclick = function () {
+  this.style.background="yellow";
+  timerid = setInterval(function(){
+    counter++;
+    counterElement.innerText = counter;
+    }, 1000)
+
+}
+
+
+//Stop
+const btnStop = document.querySelector('#stop');
+
+btnStop.onclick = function (){
+  this.style.background="yellow";
+      clearInterval(timerid);
+  }
+
+  //Reset
+
+  const btnReset = document.querySelector('#reset');
+  btnReset.onclick = function (){
+    this.style.background="yellow";
+  counter = 0;
+  counterElement.innerText = counter;
+  clearInterval(timerid);
+}
+
+let chiffre = document.querySelectorAll("button");
+for (i = 0; i<9; i++){
+
+chiffre[i].addEventListener('click', coloriage)
+
+}
+
+//coloriage des boutons
+
+ var chiffreSelected = null;
+ var num;
+
+function coloriage(){
+    if (chiffreSelected != null) {
+      chiffreSelected.classList.remove("chiffre-selected");
+    }
+    chiffreSelected= this;
+    chiffreSelected.classList.add("chiffre-selected");
+     num =  this.textContent;
+        
+}
+
+//Placer le chiffre chosi dans la grille
+     
+    
+  function placerchiffre() {
+    if (num && CaseSelect!=null && CaseSelect.classList.contains("ouvert"))
+    {
+   // console.log(CaseSelect);
+    CaseSelect.innerText = num;
+    CaseSelect.style.background = 'lightgreen';
+    let ParentCase = CaseSelect.parentNode;
+    let cellX = ParentCase.rowIndex;
+    let cellY = CaseSelect.cellIndex;
+    verification(CaseSelect, cellX, cellY);
+    }
+    }
+   //Verification
+    function verification(CaseSelect, cellX, cellY){
+      for(c=0; c<9; c++){
+      var cellGrille= document.getElementById('Board').rows[cellX].cells[c].innerText;
+      //console.log(cellGrille);
+      if (c!=cellY){
+        if(CaseSelect.innerText == cellGrille)
+        {
+          CaseSelect.style.background = 'red';
+        CaseSelect.innerText=" ";
+        }
+      }
+      }
+   
+      for(c=0; c<9; c++){
+        var cellGrille= document.getElementById('Board').rows[c].cells[cellY].innerText;
+        //console.log(cellGrille);
+        if (c!=cellX){
+          if(CaseSelect.innerText == cellGrille)
+          {
+            CaseSelect.style.background = 'red';
+            CaseSelect.innerText=" ";
+          }
+        }
+      }
+     //---verification de box 
+      if (cellX <3)
+      {
+        Xbox=0
+
+      }
+      else if (cellX>5)
+      {
+        Xbox = 6
+      }
+      else
+      {
+      Xbox = 3
+      }
+
+    
+      if (cellY <3)
+      {
+        Ybox=0
+
+      }
+      else if (cellY>5)
+      {
+        Ybox = 6
+      }
+      else
+      {
+      Ybox = 3
+      }
+
+        console.log(Xbox, Ybox)
+        for (x=Xbox; x<Xbox+3; x++)
+        {
+          for (y=Ybox; y<Ybox+3; y++)
+          {
+            var cellGrille= document.getElementById('Board').rows[x].cells[y];
+            //console.log(CaseSelect, "select");
+            //console.log(cellGrille, "grille");
+            if (CaseSelect != cellGrille)
+            {
+            if(CaseSelect.innerText==cellGrille.innerText)
+            { 
+              CaseSelect.style.background = 'red';
+              CaseSelect.innerText=" ";
+            }
+            }
+          }
+        }
+    }
+  
+
+   //Effacer un chiffre
+
+    function effacerchiffre(){
+      if (num && CaseSelect!=null && CaseSelect.classList.contains("ouvert"))       
+         {  
+           CaseSelect.innerText = " ";
+         }
+                                
+      if (CaseSelect.style.background = 'red')
+      {
+        CaseSelect.style.background = 'white';
+      }
+
+      if (CaseSelect.classList.contains("fermer")){
+        CaseSelect.style.background= 'lawngreen';
+      }
+
+    }
+
+
+   //Niveaux
+   
+   let niv= [
+     [//facile
+      [[0,6,0,1,0,4,0,5,0],[0,0,8,3,0,5,6,0,0],[2,0,0,0,0,0,0,0,1],[8,0,0,4,0,7,0,0,6],[0,0,6,0,0,0,3,0,0],[7,0,0,9,0,1,0,0,4],[5,0,0,0,0,0,0,0,2],[0,0,7,2,0,6,9,0,0],[0,4,0,5,0,8,0,7,0]],
+      [[0,0,0,0,7,0,0,6,0],[6,0,0,0,0,0,0,4,2],[0,0,0,8,9,0,0,1,5],[0,0,0,0,0,5,4,0,0],[7,6,9,0,0,0,5,2,1],[0,0,1,9,0,0,0,0,0],[9,1,0,0,4,2,0,0,0],[2,8,0,0,0,0,0,0,3],[0,7,0,0,8,0,0,0,0]]
+    ],
+    [//moyen
+      [[0,0,0,0,0,0,0,0,0],[0,0,7,8,3,0,0,0,0],[0,0,5,0,0,2,6,4,0],[0,0,2,6,0,0,0,7,0],[0,4,0,0,0,0,0,8,0],[0,6,0,0,0,3,2,0,0],[0,2,8,4,0,0,5,0,0],[0,0,0,0,9,6,1,0,0],[0,0,0,0,0,0,0,0,0]],
+      [[0,7,0,0,1,0,0,9,0],[9,0,0,8,0,0,0,0,7],[0,0,3,0,0,0,0,0,6],[0,4,0,0,0,1,5,0,0],[0,3,0,0,0,0,0,1,0],[0,0,2,7,0,0,0,6,0],[5,0,0,0,0,0,6,0,0],[6,0,0,0,0,5,0,0,2],[0,8,0,0,2,0,0,7,0]],
+      [[0,3,0,0,0,1,0,0,0],[0,0,6,0,0,0,0,5,0],[5,0,0,0,0,0,9,8,3],[0,8,0,0,0,6,3,0,2],[0,0,0,0,5,0,0,0,0],[9,0,3,8,0,0,0,6,0],[7,1,4,0,0,0,0,0,9],[0,2,0,0,0,0,8,0,0],[0,0,0,4,0,0,0,3,0]]
+    ],
+    [//difficile
+      [[0,0,0,0,0,0,0,0,5],[4,7,0,0,0,0,0,0,0],[8,5,0,0,4,2,0,0,0],[6,4,0,5,8,0,0,0,0],[0,0,7,9,0,4,1,0,0],[0,0,0,0,7,3,0,9,6],[0,0,0,8,5,0,0,3,4],[0,0,0,0,0,0,0,6,7],[3,0,0,0,0,0,0,0,0]],
+      [[0,0,8,0,7,1,0,0,4],[0,7,0,0,0,4,3,0,0],[0,0,9,8,0,0,0,0,2],[0,0,0,0,0,0,2,3,0],[0,0,2,4,0,7,8,0,0],[0,3,1,0,0,0,0,0,0],[7,0,0,0,0,6,9,0,0],[0,0,6,7,0,0,0,5,0],[9,0,0,2,5,0,7,0,0]],
+      [[4,6,0,0,0,1,0,0,0],[0,0,2,0,9,6,0,0,0],[0,3,0,0,0,0,0,6,8],[0,0,0,0,0,0,0,3,7],[0,0,0,6,0,7,0,0,0],[5,1,0,0,0,0,0,0,0],[8,4,0,0,0,0,0,5,0],[0,0,0,7,1,0,9,0,0],[0,0,0,3,0,0,0,2,4]],
+      [[1,0,0,0,0,8,9,0,0],[0,5,0,0,9,0,0,3,2],[0,9,0,7,0,0,6,0,0],[8,3,0,9,0,0,0,2,0],[0,0,0,0,4,0,0,0,6],[0,0,0,0,0,5,3,0,0],[5,0,0,1,0,9,4,0,0],[0,6,0,0,5,0,0,0,8],[4,0,0,0,8,0,0,1,0]],
+      [[7,3,0,0,0,4,6,0,0],[0,9,4,0,0,2,8,0,0],[0,2,0,0,0,0,0,0,0],[0,0,0,4,3,0,2,0,7],[0,0,0,0,0,0,0,0,0],[3,0,2,0,7,8,0,0,0],[0,0,0,0,0,0,0,5,0],[0,0,8,9,0,0,7,3,0],[0,0,6,1,0,0,0,8,4]]
+    ]
+        
+  ];
+
+</script>
+</body>
+</html>      
+
